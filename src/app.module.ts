@@ -9,8 +9,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Expenses } from './entities/expenses.entity';
 import { Income } from './entities/income.entity';
-import { DataSource } from "typeorm";
-import { TypeOrmConfigService } from "./database/typeorm-config.service";
+import { DataSource } from 'typeorm';
+import { TypeOrmConfigService } from './database/typeorm-config.service';
 
 const sessions = new LocalSession({ database: 'sessions.json' });
 
