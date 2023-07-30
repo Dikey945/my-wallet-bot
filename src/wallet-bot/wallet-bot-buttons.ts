@@ -1,5 +1,6 @@
 import { Markup } from 'telegraf';
-import { ExpensesCategoriesEnum } from './enums/expenses-categories.enum';
+import { ExpensesCategoriesEnum } from '../enums/expenses-categories.enum';
+import { IncomeCategoriesEnum } from '../enums/income-categories.enum';
 
 export const actionButtons = () => {
   return Markup.keyboard(
@@ -19,7 +20,7 @@ export const expensesButtons = () => {
   );
 };
 
-export const categoriesButtons = () => {
+export const expensesCategoriesButtons = () => {
   return Markup.inlineKeyboard(
     [
       Markup.button.callback('Їжа 🍔', ExpensesCategoriesEnum.FOOD),
@@ -34,6 +35,24 @@ export const categoriesButtons = () => {
       Markup.button.callback("Здоров'я 🏥", ExpensesCategoriesEnum.HEALTH),
       Markup.button.callback('Машина 🚗', ExpensesCategoriesEnum.CAR),
       Markup.button.callback('Інше 🤷‍♂️', ExpensesCategoriesEnum.OTHER),
+      Markup.button.callback(
+        'Підписки 🎧',
+        ExpensesCategoriesEnum.SUBSCRIPTIONS,
+      ),
+    ],
+    { columns: 3 },
+  );
+};
+
+export const incomeCategoriesButtons = () => {
+  return Markup.inlineKeyboard(
+    [
+      Markup.button.callback('Зарплата 💰', IncomeCategoriesEnum.SALARY),
+      Markup.button.callback('Подарунок 🎁', IncomeCategoriesEnum.GIFTS),
+      Markup.button.callback('Борг', IncomeCategoriesEnum.LOANS),
+      Markup.button.callback('Інвестиції 📈', IncomeCategoriesEnum.INVESTMENTS),
+      Markup.button.callback('Депозити 🏦', IncomeCategoriesEnum.DEPOSITS),
+      Markup.button.callback('Інше 🤷‍♂️', IncomeCategoriesEnum.OTHER),
     ],
     { columns: 3 },
   );

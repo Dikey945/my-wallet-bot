@@ -1,22 +1,24 @@
-import { AppService } from './app.service';
+import { WalletBotService } from './wallet-bot.service';
 import { Action, InjectBot, On, Start, Update } from 'nestjs-telegraf';
 import { Telegraf } from 'telegraf';
 import {
   actionButtons,
-  categoriesButtons,
   expensesButtons,
-} from './app.buttons';
-import { StateStageEnum } from './enums/state-stage.enum';
-import { Context } from './utils/types';
-import { ExpensesCategoriesEnum } from './enums/expenses-categories.enum';
+  expensesCategoriesButtons,
+  incomeCategoriesButtons,
+} from './wallet-bot-buttons';
+import { StateStageEnum } from '../enums/state-stage.enum';
+import { Context } from '../utils/types';
+import { ExpensesCategoriesEnum } from '../enums/expenses-categories.enum';
+import { IncomeCategoriesEnum } from '../enums/income-categories.enum';
 
 @Update()
-export class AppUpdate {
+export class WalletBotUpdate {
   constructor(
     @InjectBot()
     private readonly bot: Telegraf<Context>,
 
-    private readonly appService: AppService,
+    private readonly walletBotService: WalletBotService,
   ) {}
 
   @Start()
@@ -61,7 +63,23 @@ export class AppUpdate {
         case StateStageEnum.EXPENSES_AMOUNT:
           ctx.session.transaction.amount = Number(ctx.message.text);
           ctx.session.stage = StateStageEnum.EXPENSES_CATEGORY;
-          await ctx.reply('І куди мені це все записати?', categoriesButtons());
+          await ctx.reply(
+            'І куди мені це все записати?',
+            expensesCategoriesButtons(),
+          );
+          break;
+        case StateStageEnum.INCOME_DESCRIPTION:
+          ctx.session.transaction.description = ctx.message.text;
+          ctx.session.stage = StateStageEnum.INCOME_AMOUNT;
+          await ctx.reply('Шикардоc! А скільки, котик?');
+          break;
+        case StateStageEnum.INCOME_AMOUNT:
+          ctx.session.transaction.amount = Number(ctx.message.text);
+          ctx.session.stage = StateStageEnum.INCOME_CATEGORY;
+          await ctx.reply(
+            'Тюююю, і заради цього я свої кілобайти напрягаю? Ладно, звідки гроші, Лєбовські?',
+            incomeCategoriesButtons(),
+          );
       }
     }
   }
@@ -76,6 +94,13 @@ export class AppUpdate {
     await ctx.reply('На що витратив, котик?');
   }
 
+  @Action('income')
+  async incomeAction(ctx: Context) {
+    ctx.session.stage = StateStageEnum.INCOME_DESCRIPTION;
+    ctx.session.transaction = {};
+    await ctx.reply('Оххх, давно вже цього чекав! Звідки грошенята?');
+  }
+
   // Handler for categories buttons
   @Action([
     ExpensesCategoriesEnum.FOOD,
@@ -86,11 +111,32 @@ export class AppUpdate {
     ExpensesCategoriesEnum.CHILDREN,
     ExpensesCategoriesEnum.HEALTH,
     ExpensesCategoriesEnum.CAR,
+    ExpensesCategoriesEnum.SUBSCRIPTIONS,
     ExpensesCategoriesEnum.OTHER,
   ])
   async categoriesAction(ctx: Context) {
     ctx.session.transaction.category = (ctx.callbackQuery as any).data;
-    await this.appService.createExpensesTransaction(
+    await this.walletBotService.createExpensesTransaction(
+      ctx.session.transaction,
+      ctx.from,
+    );
+    ctx.session.transaction = {};
+    ctx.session.stage = null;
+    await ctx.reply('Я всьо записав, транжиро!');
+  }
+
+  // Handler for categories buttons
+  @Action([
+    IncomeCategoriesEnum.SALARY,
+    IncomeCategoriesEnum.GIFTS,
+    IncomeCategoriesEnum.DEPOSITS,
+    IncomeCategoriesEnum.OTHER,
+    IncomeCategoriesEnum.LOANS,
+    IncomeCategoriesEnum.INVESTMENTS,
+  ])
+  async incomeCategoriesAction(ctx: Context) {
+    ctx.session.transaction.category = (ctx.callbackQuery as any).data;
+    await this.walletBotService.createIncomeTransaction(
       ctx.session.transaction,
       ctx.from,
     );

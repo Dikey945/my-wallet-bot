@@ -7,5 +7,6 @@ export enum ExpensesCategoriesEnum {
   CHILDREN = 'children',
   HEALTH = 'health',
   CAR = 'car',
+  SUBSCRIPTIONS = 'subscriptions',
   OTHER = 'other',
 }

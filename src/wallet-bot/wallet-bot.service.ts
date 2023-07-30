@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from './entities/user.entity';
+import { User } from '../entities/user.entity';
 import { Repository } from 'typeorm';
-import { Expenses } from './entities/expenses.entity';
-import { Income } from './entities/income.entity';
-import { BotTransaction, TgUser } from './utils/types';
+import { Expenses } from '../entities/expenses.entity';
+import { Income } from '../entities/income.entity';
+import { BotTransaction, TgUser } from '../utils/types';
 
 @Injectable()
-export class AppService {
+export class WalletBotService {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
@@ -45,5 +45,32 @@ export class AppService {
     };
 
     return this.expensesRepository.save(newExpenses);
+  }
+
+  async createIncomeTransaction(
+    income: BotTransaction,
+    user: TgUser,
+  ): Promise<Income> {
+    const userId = user.id;
+    let findUser = await this.userRepository.findOne({
+      where: {
+        userTgId: userId,
+      },
+    });
+    if (!findUser) {
+      const newUser = {
+        userTgId: userId,
+        firstName: user.first_name,
+        userTag: user.username,
+      };
+      const createdUser: User = await this.userRepository.save(newUser);
+      findUser = createdUser;
+    }
+    const newIncome = {
+      ...income,
+      user: findUser,
+    };
+
+    return this.incomeRepository.save(newIncome);
   }
 }
