@@ -10,8 +10,8 @@ export abstract class EntityHelper extends BaseEntity {
   id?: number;
 
   @CreateDateColumn({ type: 'timestamp' })
-  createdAt?: string;
+  createdAt?: Date;
 
   @UpdateDateColumn({ type: 'timestamp' })
-  updatedAt?: string;
+  updatedAt?: Date;
 }

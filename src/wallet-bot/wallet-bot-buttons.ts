@@ -57,3 +57,14 @@ export const incomeCategoriesButtons = () => {
     { columns: 3 },
   );
 };
+
+export const statisticsButtons = () => {
+  return Markup.inlineKeyboard(
+    [
+      Markup.button.callback('За місяць 📅', 'month'),
+      Markup.button.callback('За тиждень 📆', 'week'),
+      Markup.button.callback('За день 📆', 'day'),
+    ],
+    { columns: 3 },
+  );
+}

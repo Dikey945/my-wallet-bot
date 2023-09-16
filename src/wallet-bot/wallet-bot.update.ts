@@ -6,6 +6,7 @@ import {
   expensesButtons,
   expensesCategoriesButtons,
   incomeCategoriesButtons,
+  statisticsButtons,
 } from './wallet-bot-buttons';
 import { StateStageEnum } from '../enums/state-stage.enum';
 import { Context } from '../utils/types';
@@ -47,7 +48,7 @@ export class WalletBotUpdate {
           );
           break;
         case 'Статистика':
-          await ctx.reply('You clicked on Заробив 💸');
+          await ctx.reply('You clicked on Заробив 💸', statisticsButtons());
           break;
         default:
           await ctx.reply('You sent some text');
@@ -143,5 +144,12 @@ export class WalletBotUpdate {
     ctx.session.transaction = {};
     ctx.session.stage = null;
     await ctx.reply('Я всьо записав, транжиро!');
+  }
+
+  @Action('month')
+  async monthAction(ctx: Context) {
+    const monthExpenses = await this.walletBotService.getExpensesByLastMonth(
+      ctx.from,
+    );
   }
 }

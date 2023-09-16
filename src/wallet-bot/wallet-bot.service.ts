@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../entities/user.entity';
-import { Repository } from 'typeorm';
+import { Between, Repository } from 'typeorm';
 import { Expenses } from '../entities/expenses.entity';
 import { Income } from '../entities/income.entity';
 import { BotTransaction, TgUser } from '../utils/types';
@@ -16,9 +16,6 @@ export class WalletBotService {
     @InjectRepository(Income)
     private incomeRepository: Repository<Income>,
   ) {}
-  getHello(): string {
-    return 'Hello World!';
-  }
 
   async createExpensesTransaction(
     expenses: BotTransaction,
@@ -36,8 +33,7 @@ export class WalletBotService {
         firstName: user.first_name,
         userTag: user.username,
       };
-      const createdUser: User = await this.userRepository.save(newUser);
-      findUser = createdUser;
+      findUser = await this.userRepository.save(newUser);
     }
     const newExpenses = {
       ...expenses,
@@ -63,8 +59,7 @@ export class WalletBotService {
         firstName: user.first_name,
         userTag: user.username,
       };
-      const createdUser: User = await this.userRepository.save(newUser);
-      findUser = createdUser;
+      findUser = await this.userRepository.save(newUser);
     }
     const newIncome = {
       ...income,
@@ -72,5 +67,25 @@ export class WalletBotService {
     };
 
     return this.incomeRepository.save(newIncome);
+  }
+
+  getExpensesByLastMonth(user: TgUser): Promise<Expenses[]> {
+    const userId = user.id;
+    const startDate = new Date();
+    startDate.setDate(1);
+    startDate.setHours(0, 0, 0, 0);
+
+    const endDate = new Date(startDate);
+    endDate.setMonth(startDate.getMonth() + 1);
+    const queryCriteria = {
+      where: {
+        user: {
+          userTgId: userId,
+        },
+        createdAt: Between(startDate, endDate),
+      },
+      // You can include other options here if needed
+    };
+    return this.expensesRepository.find(queryCriteria);
   }
 }
